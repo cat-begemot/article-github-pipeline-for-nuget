@@ -25,7 +25,7 @@
    <!-- Уникальный индентификатор NuGet пакета -->
    <PackageId>AHSW.EventLog</PackageId>
    <Version>1.9.1</Version>
-   <Authors>Alex Holenko</Authors>
+   <Authors>Software Developer</Authors>
    <!-- Информация о лицензии -->
    <PackageLicenseExpression>MIT</PackageLicenseExpression>
    <Title>Краткое описание пакета</Title>
