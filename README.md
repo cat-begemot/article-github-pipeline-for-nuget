@@ -1,7 +1,7 @@
-# Автоматизация верификации и развертывания NuGet пакета с помощью GitHub action
+# Автоматизация верификации и развертывания NuGet пакета с помощью GitHub actions
 
 ## Цель
-На практическом примере настроить CI/DI [GitHub actions](https://github.com/features/actions) для валидации и развертывания NuGet пакета, начиная с минимально рабочего конфигурационного `yaml` файла и постепенно усовершенствуя его до покрытия всех запланированных требований.
+На практическом примере настроить CI/DI [GitHub actions](https://github.com/features/actions) для валидации и развертывания NuGet пакета, начиная с минимально рабочего конфигурационного `yaml` файла и постепенно усовершенствовать его до полной автоматизации запланированных требований.
 
 ## Table of Contents
 * [Кратко об окружении: гит, гит хаб и инструменты CI/CD, nuget.org](#)
@@ -16,7 +16,8 @@
 Настал этап первого развертывания (deploy), который проведем вручную, чтобы понимать те процессы, которые в последствии будем автоматизировать.
 Весь процесс можно условно разделить на две части. Первая часть - это разовая предварительная конфигурация окружения и проекта, вторая - непосредственно ручная рутина для каждой публикации библиотеки.
 
-Первоночальная разовая конфигурация:
+### Первоночальная разовая конфигурация:
+
 1. В качестве хоста NuGet пакетов будем использовать [nuget.org](https://www.nuget.org) сервис. Для этого [создадим аккаунт](https://learn.microsoft.com/en-us/nuget/nuget-org/individual-accounts#add-a-new-individual-account), если его еще нет
 2. [Генерируем в аккаунте API ключ](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key), который нам будет необходим для последующей публикации библиотеки
 3. Добавим необходмые [метаданные](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices) в `<PropertyGroup>` конфигурационного файла проекта (`*.csproj`) для публикации:
@@ -30,7 +31,7 @@
    9. `<RepositoryUrl>https://github.com/cat-begemot/event-log</RepositoryUrl>`
    10. `<PackageTags>dotnet, useful, lib, etc</PackageTags>`
 
-Этапы ручного развертывания:
+### Этапы ручного развертывания:
 
 1. Запуск юнит тестов
 2. Инкрементация [версии](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#package-version) в проектном конфигурацинном файле: `<Version>1.0.1</Version>`
