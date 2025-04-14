@@ -20,16 +20,33 @@
 
 1. В качестве хоста NuGet пакетов будем использовать [nuget.org](https://www.nuget.org) сервис. Для этого [создадим аккаунт](https://learn.microsoft.com/en-us/nuget/nuget-org/individual-accounts#add-a-new-individual-account), если его еще нет
 2. [Генерируем в аккаунте API ключ](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key), который нам будет необходим для последующей публикации библиотеки
-3. Добавим необходмые [метаданные](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices) в `<PropertyGroup>` конфигурационного файла проекта (`*.csproj`) для публикации:
-   1. `<PackageLicenseExpression>MIT</PackageLicenseExpression>` - информация о лицензии. В нашем случаеб наиболее популряная для open-source проектов [MIT](https://gist.github.com/nicolasdao/a7adda51f2f185e8d2700e1573d8a633#1-mit)
-   2. `<PackageId>Software.UsefulLibrary</PackageId>` - уникальный индентификатор NuGet пакета. Другими словами слот или адрес, по которому можно будет в дальнейшем ссылаться на опубликованный пакет
-   4. `<Authors>Software Developer</Authors>`
-   5. `<Title>I'm title</Title>`
-   6. `<Description>I'm description</Description>`
-   7. `<PackageIcon>i_am_icon.png</PackageIcon>`
-   8. `<PackageReadmeFile>README.md</PackageReadmeFile>`
-   9. `<RepositoryUrl>https://github.com/cat-begemot/event-log</RepositoryUrl>`
-   10. `<PackageTags>dotnet, useful, lib, etc</PackageTags>`
+3. Добавим необходмые [метаданные](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices) в `<PropertyGroup>` и `<ItemGroup>` конфигурационного файла проекта (`*.csproj`) для публикации
+```xml
+<PropertyGroup>
+   <!-- Уникальный индентификатор NuGet пакета -->
+   <PackageId>AHSW.EventLog</PackageId>
+   <Version>1.9.1</Version>
+   <Authors>Alex Holenko</Authors>
+   <!-- Информация о лицензии -->
+   <PackageLicenseExpression>MIT</PackageLicenseExpression>
+   <Title>Краткое описание пакета</Title>
+   <Description>Развернутое описание пакета</Description>
+   <PackageIcon>logo.png</PackageIcon>
+   <PackageReadmeFile>README.md</PackageReadmeFile>
+   <!-- Ссылка на репозиторий с исходным кодом -->
+   <RepositoryUrl>https://github.com/software-developer/useful-library</RepositoryUrl>
+   <!-- Теги описывающие проект для индексации и поиска -->
+   <PackageTags>dotnet, useful, lib, etc</PackageTags>
+   <GenerateDocumentationFile>True</GenerateDocumentationFile>
+</PropertyGroup>
+
+<ItemGroup>
+   <!-- Добавление необходмых ссылок для ProprtyGroup элементов -->
+   <None Include="..\..\images\logo.png" Pack="true" PackagePath="\"/>
+   <None Include="..\..\LICENSE" Pack="true" PackagePath="LICENSE"/>
+   <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+</ItemGroup>
+```
 
 ### Этапы ручного развертывания:
 
