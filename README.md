@@ -23,8 +23,8 @@
 ```xml
 <PropertyGroup>
    <!-- Уникальный индентификатор NuGet пакета -->
-   <PackageId>AHSW.EventLog</PackageId>
-   <Version>1.9.1</Version>
+   <PackageId>Library.UsefulPackage</PackageId>
+   <Version>1.0.1</Version>
    <Authors>Software Developer</Authors>
    <!-- Информация о лицензии -->
    <PackageLicenseExpression>MIT</PackageLicenseExpression>
