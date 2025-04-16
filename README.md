@@ -76,10 +76,93 @@
 Документацию по написанию рабочих процессов можно найти [здесь](https://docs.github.com/en/actions/writing-workflows).
 
 ### MVP
+#### Добавление шаблона пайпайлна с триггером запуска
+Добавим в репозиторий проекта файл `./github/workflows/release-and-publish.yml` с указанием имени пайплайна и [события, по которому он будет запускаться](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows). В нашем случае это комит на мастер ветку удаленного репозитория.
 
-Добавим в репозиторий ... шаблон со следущим содержимим
-Для создания минимально работающей версии автоматизации нам нужно добавить 
+```yaml
+# Pipeline name
+name: Create release and publish NuGet
 
+# Trigger when a commit is created on the remote master branch
+on:
+  push:
+    branches:
+      - 'master'
+```
+
+Для создания минимально работающей версии пайплайна добавим нам нужно добавить джобу сборки ньюгет пакета и джобу публикации артифакта на nuget.org.
+
+#### Добавления джобы сборки пакета
+
+```yaml
+jobs:
+  # Уникальный референс индентификатор джобы
+  create_nuget:
+    # Юзер френдли имя джобы, которое будет отображаться на UI
+    name: Create NuGet
+    # Среда исполения. Каждая джоба выполняется изолировано в своей среде
+    runs-on: ubuntu-24.04
+    # Перечень последовательно запускаемых команд
+    steps:
+      # Чекаут на комит ветки для доступа к исходному коду
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # Установка SDK 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      # Сборка и упаковка пакета
+      - name: Pack
+        shell: pwsh
+        run: dotnet pack .\src\EventLog --configuration Release --output ${{ env.NuGetDirectory }}
+
+      # Загрузка артефакта в хранилище для доступа к нему из других джоб
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          if-no-files-found: error
+          retention-days: 7
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+```
+
+Результатом выпонения это джобы имеем загруженный в хранилище собранный артифакт пакет с именем EventLog_1.0.1.nupkg, где версия пакета - это версия прописанная в chproj файле проекта. Необходимо не забывать инкрементить соответствующую часть версии с каждым релизом библиотеки, так как одну и ту же версию не получится опубликовать на nuget.org дважды.
+
+#### Добавления джобы публикации пакета
+Здесь и далее буду показывать только дельту изменения пайплайна. Полная версия будет в конце статьи.
+
+```yaml
+...
+
+ deploy:
+    name: Deploy NuGet
+    runs-on: ubuntu-24.04
+    # Перед публикацией необходим готовый артефакт.
+    # Поэтому эта джоба ждет завершения выполнения джобы create_nuget
+    needs: create_nuget
+    # Выполнить, если успешно завершилось выполнение create_nuget
+    if: success()
+    steps:
+      # Загружаем содержимое хранилища
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget
+          path: ${{ env.NuGetDirectory }}
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
+      # С помощью dotnet утилиты nuget публикуе пакет
+      - name: Publish NuGet package
+        shell: pwsh
+        run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }
+```
+
+Итерируем содержимое загруженного хранилища включая поддиректории и загружаем каждый найденный `nupkg` пакет на `nuget.org`. Чтобы не хранить ключ доступа к хосту ньюгет пакетов в открытом доступе, [сохраняем его приватно в настройках репозитория](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions) и ссылаемся на него из пайплайна.
 
 
 ## 4. Чтобы что-то задеплоить, надо иметь собранный пакет. Начальный пайплайн должен состоять минимум из двух джоб
