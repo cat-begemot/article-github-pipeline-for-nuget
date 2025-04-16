@@ -89,10 +89,6 @@ on:
     branches:
       - 'master'
 
-# Save path to the NuGet directory in the environment variable
-env:
-  NuGetDirectory: ${{ github.workspace}}/nuget
-
 # Сюда будут добавлены джобы в соответствии с требованиями
 jobs:
 ```
@@ -110,6 +106,9 @@ jobs:
     name: Create NuGet
     # Среда исполения. Каждая джоба выполняется изолировано в своей среде
     runs-on: ubuntu-24.04
+    # Save path to the NuGet directory in the environment variable
+    env:
+      NuGetDirectory: ${{ github.workspace}}/nuget
     # Перечень последовательно запускаемых команд
     steps:
       # Чекаут на комит ветки для доступа к исходному коду
@@ -147,6 +146,9 @@ jobs:
     needs: create_nuget
     # Выполнить, если успешно завершилось выполнение create_nuget
     if: success()
+    # Save path to the NuGet directory in the environment variable
+    env:
+      NuGetDirectory: ${{ github.workspace}}/nuget
     steps:
       # Загружаем содержимое хранилища
       - name: Download artifact
@@ -259,7 +261,34 @@ jobs:
 - GitHub Release (релиз ноут секция) функционал завязан на соответствующий тег
 
  ```yaml
+  tag_and_push:
+    name: Create and push release tag
+    runs-on: ${{ needs.setup_env_vars.outputs.runner_image }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      tag: ${{ github.ref_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      - name: Set up Git
+        run: |
+          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+
+      - name: Get project version from .csproj
+        uses: ./.github/actions/get-project-version
+
+      - name: Fetch the latest changes from the remote repository
+        run: |
+          git fetch --tags
+
+      - name: Create and push tag
+        run: |
+          NEW_TAG="v$VERSION"
+          git tag $NEW_TAG
+          echo "Tag created: $NEW_TAG"
+          git push origin $NEW_TAG
 ```
 
 ## 5. Создание релиз записи в репозитории GitHub профиля
