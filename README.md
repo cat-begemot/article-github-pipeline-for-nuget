@@ -1,9 +1,8 @@
-[Automate NuGet package verification and deployment with GitHub Actions](EN.md)
+[EN: Automate NuGet package verification and deployment with GitHub Actions](EN.md)
 
 # Автоматизация верификации и развертывания NuGet пакета с помощью GitHub actions
 
-## Цель
-На практическом примере настроить CI/DI [GitHub actions](https://github.com/features/actions) для валидации и развертывания NuGet пакета, начиная с минимально рабочего конфигурационного `yaml` файла и постепенно усовершенствовать его до полной автоматизации запланированных требований.
+В этой статье на практическом примере я хочу показать как настроить CI/DI [GitHub actions](https://github.com/features/actions) для валидации и развертывания NuGet пакета, начиная с минимально полезного конфигурационного `yaml` файла и постепенного доавбления функционала до полной автоматизации запланированных требований.
 
 ## Table of Contents
 * [Окружение, процессы и постановка задачи](#)
