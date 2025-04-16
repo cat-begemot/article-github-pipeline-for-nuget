@@ -263,21 +263,25 @@ jobs:
  ```yaml
   tag_and_push:
     name: Create and push release tag
-    runs-on: ${{ needs.setup_env_vars.outputs.runner_image }}
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      tag: ${{ github.ref_name }}
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Наконфигурируем в настроцках Git текущей джобы имя и адрес почты автора для тега
       - name: Set up Git
         run: |
           git config --global user.name "${{ secrets.GIT_USER_NAME }}"
           git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
 
+      # Используя второй раз один и тот же код, неплохо его было бы вынести в отдельный action
+      # Для упрощения, оставим дубляж как есть
       - name: Get project version from .csproj
-        uses: ./.github/actions/get-project-version
+        shell: bash
+        run: |
+          VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ./src/EventLog/EventLog.csproj)
+          echo "Project version is $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Fetch the latest changes from the remote repository
         run: |
@@ -296,11 +300,46 @@ jobs:
 Довольно удобно и информативно, когда пользователи релизного продукта могут зайти в соответствующую секцию и прочитать об изменениях в новой версии и понять, зачем им стоит на нее переходить.
 
  ```yaml
+  release:
+    name: Create release
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      - name: Create GitHub release
+        run: |
+          git fetch --tags
+          NEW_TAG=$(git describe --tags --abbrev=0 origin/master)
+          echo "Latest tag on master: $NEW_TAG"
+          gh release create $NEW_TAG \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${NEW_TAG#v}" \
+              --generate-notes \
+              --generate-notes \
+              --verify-tag \
+              --latest
 ```
 
 ## 6. Управление зависимостями между джобами и очередностью выполнения
 
+В результате автоматизации всех требований мы получили цепочку исполняющихся действий как схематически представлено ниже.
+
+...
+
+Проблема сейчас в том, что джобы выполняются в не зависимости от успешности/не успешности выполнения других джоб, хотя у нас есть явные зависимости и четкая последовательность. К примеру, не имеет смысла выполнять весь воркфлоу, если тесты не пройдены или версия проекта правильно не инкрементнута. Для управления зависимостями и условиями, используются в джобах теги `needs` и `if`, внутри которых можно использовать ссылки на другие джобы или переменные по их уникальным идентификаторам. По итогу правильно выстроенные зависимости и последовательность исполнения джоб будет выглядеть следующим образом:
+
+...
+
+Проследить как я этого добился можно по вышеупомянутым тегам в финальном виде `yaml` файла:
+
+```yaml
+```
+
 ## 7. Заключение
+
+В этой статье я максимально сжато показал свой опыт написания пайплайна для GitHub Actions автоматизирая рутинные действия по публикации NuGet проекта, что позволяет больше фокусироваться на функционале, не производя каждый раз единообразные манипуляции по публикации релизов. Слияние нового функционала с проставленной версией в мастер ветку приводит к автоматизированным этапам проверки и публикации NuGet пакета на nuget.org, что делает его через короткое время доступным для скачивания через NuGetPackage Manager или любой другой клиент NuGet пакетов.
+
+Так же после выполнения пайплайна не стоит забывать обновить соответствующую секцию релиза в GitHub профилe.
 
 [How to create github actions workflow for the handling nuget package development and delivery](EN.md)
