@@ -557,5 +557,4 @@ jobs:
 
 Так же после выполнения пайплайна не стоит забывать обновить соответствующую секцию релиза в GitHub профилe.
 
-<img width="600" src="./assets/Pic-4.png"/>
-<img width="600" src="./assets/Pic-5.png"/>
+<img width="380" src="./assets/Pic-4.png"/> <img width="620" src="./assets/Pic-5.png"/>
