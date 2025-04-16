@@ -1,3 +1,5 @@
+[Automate NuGet package verification and deployment with GitHub Actions](EN.md)
+
 # Автоматизация верификации и развертывания NuGet пакета с помощью GitHub actions
 
 ## Цель
@@ -555,4 +557,5 @@ jobs:
 
 Так же после выполнения пайплайна не стоит забывать обновить соответствующую секцию релиза в GitHub профилe.
 
-[How to create github actions workflow for the handling nuget package development and delivery](EN.md)
+<img width="600" src="./assets/Pic-4.png"/>
+<img width="600" src="./assets/Pic-5.png"/>
