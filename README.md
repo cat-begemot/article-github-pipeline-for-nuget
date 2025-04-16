@@ -92,6 +92,9 @@ on:
 # Save path to the NuGet directory in the environment variable
 env:
   NuGetDirectory: ${{ github.workspace}}/nuget
+
+# Сюда будут добавлены джобы в соответствии с требованиями
+jobs:
 ```
 
 Для создания минимально работающей версии пайплайна добавим нам нужно добавить джобу сборки ньюгет пакета и джобу публикации артифакта на nuget.org.
@@ -101,7 +104,6 @@ env:
 Здесь и далее буду показывать только дельту изменения пайплайна. Полную версию можно найти в конце статьи.
 
 ```yaml
-jobs:
   # Уникальный референс индентификатор джобы
   create_nuget:
     # Юзер френдли имя джобы, которое будет отображаться на UI
@@ -137,8 +139,6 @@ jobs:
 ### 1.3. Добавления джобы публикации пакета
 
 ```yaml
-...
-
  deploy:
     name: Deploy NuGet
     runs-on: ubuntu-24.04
@@ -186,7 +186,19 @@ jobs:
 Чтобы быть уверенным в том, что к публикации не допускается код, все тесты которого не выполнены успешно, добавим соответствующую джобу. 
 
 ```yaml
-...
+  run_test:
+    name: Run tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - name: Run tests
+        shell: pwsh
+        run: dotnet test --configuration Release .\src\EventLog.UnitTests
 ```
 
 ## 3. Проверка текущий версии проекта
@@ -194,7 +206,49 @@ jobs:
 В этой джобе мы хотим убедиться, что версия проекта, указанная в `chproj` файле проекта выше последней версии, которую мы извлечем из тега последнего релизного коммита. То есть, что мы не забыли инкрементнуть правильно версию перед пушем кода в удаленный репозиторий.
 
 ```yaml
-...
+  check_version:
+    name: Check project version
+    runs-on: ubuntu-24.04
+    outputs:
+      # Возвращает результат проверки в переменной is_valid
+      is_valid: ${{ steps.compare_versions.outputs.is_valid }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get project version from .csproj
+        shell: bash
+        run: |
+          # Получаем версию проекта из csproj файла
+          VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ./src/EventLog/EventLog.csproj)
+          echo "Project version is $VERSION"
+          # Сохраняем результат в переменную VERSION
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Get latest tag
+        id: tag
+        run: |
+          # Получаем последнюю релизную версию по git тегу из лога репозитория
+          git fetch --tags
+          LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
+          echo "Latest tag: $LATEST_TAG"
+          # Сохраняем результат в переменную LATEST_TAG
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Compare Strings
+        id: compare_versions
+        run: |
+          # Находим максимальную вверсию сравнивая VERSION и LATEST_TAG и сохраняем ее в переменную GREATER_VERSION
+          GREATER_VERSION=$(printf "%s\n%s" "$VERSION" "${LATEST_TAG#v}" | sort -V | tail -n 1)
+          if [[ "$VERSION" == "$GREATER_VERSION" && "$VERSION" != "${LATEST_TAG#v}" ]]; then
+            # Если версия в конфигурацинном файле проекта выше версии тега, то проверка пройдена
+            echo "The new release version is ${LATEST_TAG#v}"
+            echo "is_valid=true" >> $GITHUB_OUTPUT
+          else
+            # Иначе сигнализируем об ошибке
+            echo "The project version is not incremented"
+            echo "is_valid=false" >> $GITHUB_OUTPUT
+          fi
 ```
 
 ## 4. Добавление тега с версией на текущий релизный комит
@@ -205,7 +259,7 @@ jobs:
 - GitHub Release (релиз ноут секция) функционал завязан на соответствующий тег
 
  ```yaml
-...
+
 ```
 
 ## 5. Создание релиз записи в репозитории GitHub профиля
@@ -213,7 +267,7 @@ jobs:
 Довольно удобно и информативно, когда пользователи релизного продукта могут зайти в соответствующую секцию и прочитать об изменениях в новой версии и понять, зачем им стоит на нее переходить.
 
  ```yaml
-...
+
 ```
 
 ## 6. Управление зависимостями между джобами и очередностью выполнения
