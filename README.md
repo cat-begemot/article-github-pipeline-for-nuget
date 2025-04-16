@@ -35,28 +35,36 @@
 3. Добавим необходмые [метаданные](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices) в `<PropertyGroup>` и `<ItemGroup>` конфигурационного файла проекта (`*.csproj`) для публикации
 ```xml
 <PropertyGroup>
-   <!-- Уникальный индентификатор NuGet пакета -->
-   <PackageId>Library.UsefulPackage</PackageId>
-   <Version>1.0.1</Version>
-   <Authors>Software Developer</Authors>
-   <!-- Информация о лицензии -->
-   <PackageLicenseExpression>MIT</PackageLicenseExpression>
-   <Title>Краткое описание пакета</Title>
-   <Description>Развернутое описание пакета</Description>
-   <PackageIcon>logo.png</PackageIcon>
-   <PackageReadmeFile>README.md</PackageReadmeFile>
-   <!-- Ссылка на репозиторий с исходным кодом -->
-   <RepositoryUrl>https://github.com/software-developer/useful-library</RepositoryUrl>
-   <!-- Теги описывающие проект для индексации и поиска -->
-   <PackageTags>dotnet, useful, lib, etc</PackageTags>
-   <GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+  <!-- Уникальный индентификатор NuGet пакета и версия -->
+  <PackageId>Library.UsefulPackage</PackageId>
+  <Version>1.0.1</Version>
+
+  <!-- Информация о лицензии -->
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+  <!-- Авторство, описание проекта, логотип, документация -->
+  <Authors>Software Developer</Authors>
+  <Title>Краткое описание пакета</Title>
+  <Description>Развернутое описание пакета</Description>
+  <PackageIcon>logo.png</PackageIcon>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+  <!-- Ссылка на репозиторий с исходным кодом -->
+  <RepositoryUrl>https://github.com/software-developer/useful-library</RepositoryUrl>
+
+  <!-- Теги описывающие проект для индексации и поиска -->
+  <PackageTags>dotnet, useful, lib, etc</PackageTags>
 </PropertyGroup>
 
 <ItemGroup>
+
    <!-- Добавление необходмых ссылок для ProprtyGroup элементов -->
    <None Include="..\..\images\logo.png" Pack="true" PackagePath="\"/>
    <None Include="..\..\LICENSE" Pack="true" PackagePath="LICENSE"/>
    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+
 </ItemGroup>
 ```
 
