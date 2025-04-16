@@ -109,7 +109,7 @@ name: Create release and publish NuGet
 on:
   push:
     branches:
-      - 'master'
+      - "master"
 
 # Сюда будут добавлены джобы в соответствии с требованиями
 jobs:
@@ -122,73 +122,73 @@ jobs:
 Здесь и далее буду показывать только дельту изменения пайплайна. Полную версию можно найти в конце статьи.
 
 ```yaml
-  # Уникальный референс индентификатор джобы
-  create_nuget:
-    # Юзер френдли имя джобы, которое будет отображаться на UI
-    name: Create NuGet
-    # Среда исполения. Каждая джоба выполняется изолировано в своей среде
-    runs-on: ubuntu-24.04
-    # Save path to the NuGet directory in the environment variable
-    env:
-      NuGetDirectory: ${{ github.workspace}}/nuget
-    # Перечень последовательно запускаемых команд
-    steps:
-      # Чекаут на комит ветки для доступа к исходному коду
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      # Установка SDK 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+# Уникальный референс индентификатор джобы
+create_nuget:
+  # Юзер френдли имя джобы, которое будет отображаться на UI
+  name: Create NuGet
+  # Среда исполения. Каждая джоба выполняется изолировано в своей среде
+  runs-on: ubuntu-24.04
+  # Save path to the NuGet directory in the environment variable
+  env:
+    NuGetDirectory: ${{ github.workspace}}/nuget
+  # Перечень последовательно запускаемых команд
+  steps:
+    # Чекаут на комит ветки для доступа к исходному коду
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      # Сборка и упаковка пакета
-      - name: Pack
-        shell: pwsh
-        run: dotnet pack .\src\EventLog --configuration Release --output ${{ env.NuGetDirectory }}
+    # Установка SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
 
-      # Загрузка артефакта в хранилище для доступа к нему из других джоб
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nuget
-          if-no-files-found: error
-          retention-days: 7
-          path: ${{ env.NuGetDirectory }}/*.nupkg
+    # Сборка и упаковка пакета
+    - name: Pack
+      shell: pwsh
+      run: dotnet pack .\src\EventLog --configuration Release --output ${{ env.NuGetDirectory }}
+
+    # Загрузка артефакта в хранилище для доступа к нему из других джоб
+    - uses: actions/upload-artifact@v4
+      with:
+        name: nuget
+        if-no-files-found: error
+        retention-days: 7
+        path: ${{ env.NuGetDirectory }}/*.nupkg
 ```
 
-Как результат имеем загруженный в хранилище собранный артифакт пакет с именем EventLog_1.0.1.nupkg, где версия пакета - это версия прописанная в chproj файле проекта. Необходимо не забывать инкрементить соответствующую часть версии с каждым релизом библиотеки, так как одну и ту же версию не получится опубликовать на nuget.org дважды.
+Как результат имеем загруженный в хранилище собранный артефакт пакета с именем EventLog_1.0.1.nupkg, где версия пакета - это версия прописанная в csproj файле проекта. Необходимо не забывать инкрементировать соответствующую часть версии с каждым релизом, так как одну и ту же версию не получится опубликовать на nuget.org дважды.
 
 ### 1.3. Добавления джобы публикации пакета
 
 ```yaml
- deploy:
-    name: Deploy NuGet
-    runs-on: ubuntu-24.04
-    # Перед публикацией необходим готовый артефакт.
-    # Поэтому эта джоба ждет завершения выполнения джобы create_nuget
-    needs: create_nuget
-    # Выполнить, если успешно завершилось выполнение create_nuget
-    if: success()
-    # Save path to the NuGet directory in the environment variable
-    env:
-      NuGetDirectory: ${{ github.workspace}}/nuget
-    steps:
-      # Загружаем содержимое хранилища
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget
-          path: ${{ env.NuGetDirectory }}
+deploy:
+  name: Deploy NuGet
+  runs-on: ubuntu-24.04
+  # Перед публикацией необходим готовый артефакт.
+  # Поэтому эта джоба ждет завершения выполнения джобы create_nuget
+  needs: create_nuget
+  # Выполнить, если успешно завершилось выполнение create_nuget
+  if: success()
+  # Save path to the NuGet directory in the environment variable
+  env:
+    NuGetDirectory: ${{ github.workspace}}/nuget
+  steps:
+    # Загружаем содержимое хранилища
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget
+        path: ${{ env.NuGetDirectory }}
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
 
-      # С помощью dotnet утилиты nuget публикуе пакет
-      - name: Publish NuGet package
-        shell: pwsh
-        run: |
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-          }
+    # С помощью dotnet утилиты nuget публикуе пакет
+    - name: Publish NuGet package
+      shell: pwsh
+      run: |
+        foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+            dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        }
 ```
 
 Итерируем содержимое загруженного хранилища включая поддиректории и загружаем каждый найденный `nupkg` пакет на `nuget.org`. Чтобы не хранить ключ доступа к хосту ньюгет пакетов в открытом доступе, [сохраняем его приватно в настройках репозитория](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions) и ссылаемся на него из пайплайна.
@@ -210,6 +210,164 @@ jobs:
 Чтобы быть уверенным в том, что к публикации не допускается код, все тесты которого не выполнены успешно, добавим соответствующую джобу. 
 
 ```yaml
+run_test:
+  name: Run tests
+  runs-on: ubuntu-24.04
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+
+    - name: Run tests
+      shell: pwsh
+      run: dotnet test --configuration Release .\src\EventLog.UnitTests
+```
+
+## 3. Проверка текущий версии проекта
+
+В этой джобе мы хотим убедиться, что версия проекта, указанная в `chproj` файле проекта выше последней версии, которую мы извлечем из тега последнего релизного коммита. То есть, что мы не забыли инкрементнуть правильно версию перед пушем кода в удаленный репозиторий.
+
+```yaml
+check_version:
+  name: Check project version
+  runs-on: ubuntu-24.04
+  outputs:
+    # Возвращает результат проверки в переменной is_valid
+    is_valid: ${{ steps.compare_versions.outputs.is_valid }}
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Get project version from .csproj
+      shell: bash
+      run: |
+        # Получаем версию проекта из csproj файла
+        VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ./src/EventLog/EventLog.csproj)
+        echo "Project version is $VERSION"
+        # Сохраняем результат в переменную VERSION
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Get latest tag
+      id: tag
+      run: |
+        # Получаем последнюю релизную версию по git тегу из лога репозитория
+        git fetch --tags
+        LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
+        echo "Latest tag: $LATEST_TAG"
+        # Сохраняем результат в переменную LATEST_TAG
+        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+    - name: Compare Strings
+      id: compare_versions
+      run: |
+        # Находим максимальную вверсию сравнивая VERSION и LATEST_TAG и сохраняем ее в переменную GREATER_VERSION
+        GREATER_VERSION=$(printf "%s\n%s" "$VERSION" "${LATEST_TAG#v}" | sort -V | tail -n 1)
+        if [[ "$VERSION" == "$GREATER_VERSION" && "$VERSION" != "${LATEST_TAG#v}" ]]; then
+          # Если версия в конфигурацинном файле проекта выше версии тега, то проверка пройдена
+          echo "The new release version is ${LATEST_TAG#v}"
+          echo "is_valid=true" >> $GITHUB_OUTPUT
+        else
+          # Иначе сигнализируем об ошибке
+          echo "The project version is not incremented"
+          echo "is_valid=false" >> $GITHUB_OUTPUT
+        fi
+```
+
+## 4. Добавление тега с версией на текущий релизный комит
+
+Как минимум иметь git тег с версией релиза нам удобно по 3 причинам:
+- В гит логах быстро находить и переключаться на комит соответствующей версии релиза
+- На этот тег завязана проверка текущей версии проекта из пункта (3)
+- GitHub Release (релиз ноут секция) функционал завязан на соответствующий тег
+
+```yaml
+tag_and_push:
+  name: Create and push release tag
+  runs-on: ubuntu-24.04
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Наконфигурируем в настроцках Git текущей джобы имя и адрес почты автора для тега
+    - name: Set up Git
+      run: |
+        git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+        git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+
+    # Используя второй раз один и тот же код, неплохо его было бы вынести в отдельный action
+    # Для упрощения, оставим дубляж как есть
+    - name: Get project version from .csproj
+      shell: bash
+      run: |
+        VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ./src/EventLog/EventLog.csproj)
+        echo "Project version is $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Fetch the latest changes from the remote repository
+      run: |
+        git fetch --tags
+
+    - name: Create and push tag
+      run: |
+        NEW_TAG="v$VERSION"
+        git tag $NEW_TAG
+        echo "Tag created: $NEW_TAG"
+        git push origin $NEW_TAG 
+```
+
+## 5. Создание релиз записи в репозитории GitHub профиля
+
+Довольно удобно и информативно, когда пользователи релизного продукта могут зайти в соответствующую секцию и прочитать об изменениях в новой версии и понять, зачем им стоит на нее переходить.
+
+```yaml
+release:
+  name: Create release
+  runs-on: ubuntu-24.04
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create GitHub release
+      run: |
+        git fetch --tags
+        NEW_TAG=$(git describe --tags --abbrev=0 origin/master)
+        echo "Latest tag on master: $NEW_TAG"
+        gh release create $NEW_TAG \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${NEW_TAG#v}" \
+            --generate-notes \
+            --generate-notes \
+            --verify-tag \
+            --latest
+```
+
+## 6. Управление зависимостями между джобами и очередностью выполнения
+
+В результате автоматизации всех требований мы получили цепочку исполняющихся действий как схематически представлено ниже.
+
+<img width="600" src="./assets/Pic-2.png"/>
+
+Проблема сейчас в том, что джобы выполняются в не зависимости от успешности/не успешности выполнения других джоб, хотя у нас есть явные зависимости и четкая последовательность. К примеру, не имеет смысла выполнять весь воркфлоу, если тесты не пройдены или версия проекта правильно не инкрементнута. Для управления зависимостями и условиями, используются в джобах теги `needs` и `if`, внутри которых можно использовать ссылки на другие джобы или переменные по их уникальным идентификаторам.
+
+По итогу правильно выстроенные зависимости и последовательность исполнения джоб будет выглядеть следующим образом:
+
+<img width="1200" src="./assets/Pic-3.png"/>
+
+Проследить как я этого добился можно по вышеупомянутым тегам в финальном виде `yaml` файла:
+
+```yaml
+# Pipeline name
+name: Create release and publish NuGet
+
+# Trigger when a commit is created on the remote master branch
+on:
+  push:
+    branches:
+      - "test"
+
+jobs:
   run_test:
     name: Run tests
     runs-on: ubuntu-24.04
@@ -223,13 +381,7 @@ jobs:
       - name: Run tests
         shell: pwsh
         run: dotnet test --configuration Release .\src\EventLog.UnitTests
-```
 
-## 3. Проверка текущий версии проекта
-
-В этой джобе мы хотим убедиться, что версия проекта, указанная в `chproj` файле проекта выше последней версии, которую мы извлечем из тега последнего релизного коммита. То есть, что мы не забыли инкрементнуть правильно версию перед пушем кода в удаленный репозиторий.
-
-```yaml
   check_version:
     name: Check project version
     runs-on: ubuntu-24.04
@@ -273,19 +425,14 @@ jobs:
             echo "The project version is not incremented"
             echo "is_valid=false" >> $GITHUB_OUTPUT
           fi
-```
 
-## 4. Добавление тега с версией на текущий релизный комит
-
-Как минимум иметь git тег с версией релиза нам удобно по 3 причинам:
-- В гит логах быстро находить и переключаться на комит соответствующей версии релиза
-- На этот тег завязана проверка текущей версии проекта из пункта (3)
-- GitHub Release (релиз ноут секция) функционал завязан на соответствующий тег
-
- ```yaml
   tag_and_push:
     name: Create and push release tag
     runs-on: ubuntu-24.04
+    # Джоба ожидает выполнения указанных в условии других джоб
+    needs: [run_test, check_version]
+    # Создаем  тег после того, как убедились, что юнит тесты пройдены и проверка версии завершена успешно
+    if: ${{ success() && needs.check_version.outputs.is_valid == 'true' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -315,16 +462,12 @@ jobs:
           git tag $NEW_TAG
           echo "Tag created: $NEW_TAG"
           git push origin $NEW_TAG
-```
 
-## 5. Создание релиз записи в репозитории GitHub профиля
-
-Довольно удобно и информативно, когда пользователи релизного продукта могут зайти в соответствующую секцию и прочитать об изменениях в новой версии и понять, зачем им стоит на нее переходить.
-
- ```yaml
   release:
     name: Create release
     runs-on: ubuntu-24.04
+    needs: tag_and_push
+    if: success()
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -341,213 +484,70 @@ jobs:
               --generate-notes \
               --verify-tag \
               --latest
-```
 
-## 6. Управление зависимостями между джобами и очередностью выполнения
-
-В результате автоматизации всех требований мы получили цепочку исполняющихся действий как схематически представлено ниже.
-
-<img width="600" src="./assets/Pic-2.png"/>
-
-Проблема сейчас в том, что джобы выполняются в не зависимости от успешности/не успешности выполнения других джоб, хотя у нас есть явные зависимости и четкая последовательность. К примеру, не имеет смысла выполнять весь воркфлоу, если тесты не пройдены или версия проекта правильно не инкрементнута. Для управления зависимостями и условиями, используются в джобах теги `needs` и `if`, внутри которых можно использовать ссылки на другие джобы или переменные по их уникальным идентификаторам.
-
-По итогу правильно выстроенные зависимости и последовательность исполнения джоб будет выглядеть следующим образом:
-
-<img width="1200" src="./assets/Pic-3.png"/>
-
-Проследить как я этого добился можно по вышеупомянутым тегам в финальном виде `yaml` файла:
-
-```yaml
-# Pipeline name
-name: Create release and publish NuGet
-
-# Trigger when a commit is created on the remote master branch
-on:
-  push:
-    branches:
-      - 'test'
-
-jobs:
-  run_test:
-    name: Run tests
+  # Уникальный референс индентификатор джобы
+  create_nuget:
+    # Юзер френдли имя джобы, которое будет отображаться на UI
+    name: Create NuGet
+    # Среда исполения. Каждая джоба выполняется изолировано в своей среде
     runs-on: ubuntu-24.04
+    # Save path to the NuGet directory in the environment variable
+    needs: tag_and_push
+    if: success()
+    env:
+      NuGetDirectory: ${{ github.workspace}}/nuget
+    # Перечень последовательно запускаемых команд
     steps:
+      # Чекаут на комит ветки для доступа к исходному коду
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Установка SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
 
-      - name: Run tests
+      # Сборка и упаковка пакета
+      - name: Pack
         shell: pwsh
-        run: dotnet test --configuration Release .\src\EventLog.UnitTests
+        run: dotnet pack .\src\EventLog --configuration Release --output ${{ env.NuGetDirectory }}
 
-  check_version:
-    name: Check project version
-    runs-on: ubuntu-24.04
-    outputs:
-      # Возвращает результат проверки в переменной is_valid
-      is_valid: ${{ steps.compare_versions.outputs.is_valid }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # Загрузка артефакта в хранилище для доступа к нему из других джоб
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          if-no-files-found: error
+          retention-days: 7
+          path: ${{ env.NuGetDirectory }}/*.nupkg
 
-      - name: Get project version from .csproj
-        shell: bash
-        run: |
-          # Получаем версию проекта из csproj файла
-          VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ./src/EventLog/EventLog.csproj)
-          echo "Project version is $VERSION"
-          # Сохраняем результат в переменную VERSION
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Get latest tag
-        id: tag
-        run: |
-          # Получаем последнюю релизную версию по git тегу из лога репозитория
-          git fetch --tags
-          LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
-          echo "Latest tag: $LATEST_TAG"
-          # Сохраняем результат в переменную LATEST_TAG
-          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-
-      - name: Compare Strings
-        id: compare_versions
-        run: |
-          # Находим максимальную вверсию сравнивая VERSION и LATEST_TAG и сохраняем ее в переменную GREATER_VERSION
-          GREATER_VERSION=$(printf "%s\n%s" "$VERSION" "${LATEST_TAG#v}" | sort -V | tail -n 1)
-          if [[ "$VERSION" == "$GREATER_VERSION" && "$VERSION" != "${LATEST_TAG#v}" ]]; then
-            # Если версия в конфигурацинном файле проекта выше версии тега, то проверка пройдена
-            echo "The new release version is ${LATEST_TAG#v}"
-            echo "is_valid=true" >> $GITHUB_OUTPUT
-          else
-            # Иначе сигнализируем об ошибке
-            echo "The project version is not incremented"
-            echo "is_valid=false" >> $GITHUB_OUTPUT
-          fi
-
-  tag_and_push:
-     name: Create and push release tag
-     runs-on: ubuntu-24.04
-     # Джоба ожидает выполнения указанных в условии других джоб
-     needs: [run_test, check_version]
-     # Создаем  тег после того, как убедились, что юнит тесты пройдены и проверка версии завершена успешно
-     if: ${{ success() && needs.check_version.outputs.is_valid == 'true' }}
-     steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-  
-       # Наконфигурируем в настроцках Git текущей джобы имя и адрес почты автора для тега
-       - name: Set up Git
-         run: |
-           git config --global user.name "${{ secrets.GIT_USER_NAME }}"
-           git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
-  
-       # Используя второй раз один и тот же код, неплохо его было бы вынести в отдельный action
-       # Для упрощения, оставим дубляж как есть
-       - name: Get project version from .csproj
-         shell: bash
-         run: |
-           VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ./src/EventLog/EventLog.csproj)
-           echo "Project version is $VERSION"
-           echo "VERSION=$VERSION" >> $GITHUB_ENV
-  
-       - name: Fetch the latest changes from the remote repository
-         run: |
-           git fetch --tags
-  
-       - name: Create and push tag
-         run: |
-           NEW_TAG="v$VERSION"
-           git tag $NEW_TAG
-           echo "Tag created: $NEW_TAG"
-           git push origin $NEW_TAG
-  
-  release:
-     name: Create release
-     runs-on: ubuntu-24.04
-     needs: tag_and_push
-     if: success()
-     steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-  
-       - name: Create GitHub release
-         run: |
-           git fetch --tags
-           NEW_TAG=$(git describe --tags --abbrev=0 origin/master)
-           echo "Latest tag on master: $NEW_TAG"
-           gh release create $NEW_TAG \
-               --repo="$GITHUB_REPOSITORY" \
-               --title="${NEW_TAG#v}" \
-               --generate-notes \
-               --generate-notes \
-               --verify-tag \
-               --latest
-  
-  # Уникальный референс индентификатор джобы
-  create_nuget:
-      # Юзер френдли имя джобы, которое будет отображаться на UI
-      name: Create NuGet
-      # Среда исполения. Каждая джоба выполняется изолировано в своей среде
-      runs-on: ubuntu-24.04
-      # Save path to the NuGet directory in the environment variable
-      needs: tag_and_push
-      if: success()
-      env:
-        NuGetDirectory: ${{ github.workspace}}/nuget
-      # Перечень последовательно запускаемых команд
-      steps:
-        # Чекаут на комит ветки для доступа к исходному коду
-        - name: Checkout repository
-          uses: actions/checkout@v4
-        
-        # Установка SDK 
-        - name: Setup .NET
-          uses: actions/setup-dotnet@v4
-  
-        # Сборка и упаковка пакета
-        - name: Pack
-          shell: pwsh
-          run: dotnet pack .\src\EventLog --configuration Release --output ${{ env.NuGetDirectory }}
-  
-        # Загрузка артефакта в хранилище для доступа к нему из других джоб
-        - uses: actions/upload-artifact@v4
-          with:
-            name: nuget
-            if-no-files-found: error
-            retention-days: 7
-            path: ${{ env.NuGetDirectory }}/*.nupkg
-     
   deploy:
-      name: Deploy NuGet
-      runs-on: ubuntu-24.04
-      # Перед публикацией необходим готовый артефакт.
-      # Поэтому эта джоба ждет завершения выполнения джобы create_nuget
-      needs: create_nuget
-      # Выполнить, если успешно завершилось выполнение create_nuget
-      if: success()
-      # Save path to the NuGet directory in the environment variable
-      env:
-        NuGetDirectory: ${{ github.workspace}}/nuget
-      steps:
-        # Загружаем содержимое хранилища
-        - name: Download artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: nuget
-            path: ${{ env.NuGetDirectory }}
-  
-        - name: Setup .NET Core
-          uses: actions/setup-dotnet@v4
-  
-        # С помощью dotnet утилиты nuget публикуе пакет
-        - name: Publish NuGet package
-          shell: pwsh
-          run: |
-            foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-                dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-            }
+    name: Deploy NuGet
+    runs-on: ubuntu-24.04
+    # Перед публикацией необходим готовый артефакт.
+    # Поэтому эта джоба ждет завершения выполнения джобы create_nuget
+    needs: create_nuget
+    # Выполнить, если успешно завершилось выполнение create_nuget
+    if: success()
+    # Save path to the NuGet directory in the environment variable
+    env:
+      NuGetDirectory: ${{ github.workspace}}/nuget
+    steps:
+      # Загружаем содержимое хранилища
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget
+          path: ${{ env.NuGetDirectory }}
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
+      # С помощью dotnet утилиты nuget публикуе пакет
+      - name: Publish NuGet package
+        shell: pwsh
+        run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }
 ```
 
 ## Заключение
