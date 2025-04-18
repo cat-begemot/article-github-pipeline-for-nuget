@@ -128,11 +128,11 @@ jobs:
 
 ```yaml
 # 1.2. Добавления джобы сборки пакета
-# Уникальный референс индентификатор джобы
+# Уникальный индентификатор джобы, который может использоваться при необходимости как ссылка
 create_nuget:
   # Юзер френдли имя джобы, которое будет отображаться на UI
   name: Create NuGet
-  # Среда исполения. Каждая джоба выполняется изолировано в своей среде
+  # Среда исполения. Каждая джоба выполняется изолировано в своем окружении
   runs-on: ubuntu-24.04
   # Save path to the NuGet directory in the environment variable
   env:
@@ -198,7 +198,9 @@ deploy:
         }
 ```
 
-Итерируем содержимое загруженного хранилища включая поддиректории и загружаем каждый найденный файл с расширением `*.nupkg` на `nuget.org`. Чтобы не хранить ключ доступа к хосту ньюгетов в открытом доступе, [сохраняем его приватно в настройках репозитория](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions) и ссылаемся на него из пайплайна.
+Итерируем содержимое загруженного хранилища включая поддиректории и загружаем каждый найденный файл с расширением `*.nupkg` на `nuget.org`.
+
+Чтобы не хранить ключ доступа к хосту ньюгетов в открытом доступе, [сохраняем его приватно в настройках репозитория](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions) и ссылаемся на него из пайплайна в виде выражения `"${{ secrets.NUGET_APIKEY }}"`.
 
 ### 1.4. Результат
 
@@ -206,8 +208,8 @@ deploy:
 
 <img width="600" src="./assets/Pic-1.png"/>
 
-В последующих разделах мы расширим текущих функционал с целью нивелировать следующие вопросы:
-- Целесообразность выполнения, если тесты не пройдены успешно
+В последующих разделах мы расширим текущих функционал с целью покрыть все изначальные требования:
+- Целесообразность выполнения пайплайна, если тесты не пройдены успешно
 - Защита от не измененной или не правильно измененной версии проекта
 - Добавление тега на комит релиза
 - Создание GitHub релиза
@@ -243,7 +245,8 @@ check_version:
   name: Check project version
   runs-on: ubuntu-24.04
   outputs:
-    # Возвращает результат проверки в переменной is_valid
+    # Джоба возвращает результат проверки в переменной is_valid
+	# Из других джоб на результат можно получить используя выражение needs.check_version.outputs.is_valid
     is_valid: ${{ steps.compare_versions.outputs.is_valid }}
   steps:
     - name: Checkout repository
@@ -261,7 +264,7 @@ check_version:
     - name: Get latest tag
       id: tag
       run: |
-        # Получаем последнюю релизную версию по git тегу из лога репозитория
+        # Получаем последнюю релизную версию по Git тегу из лога репозитория
         git fetch --tags
         LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
         echo "Latest tag: $LATEST_TAG"
@@ -300,14 +303,14 @@ tag_and_push:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Наконфигурируем в настроцках Git текущей джобы имя и адрес почты автора для тега
+    # Изменим в конфигурации Git текущей джобы имя и адрес почты автора для тега
     - name: Set up Git
       run: |
         git config --global user.name "${{ secrets.GIT_USER_NAME }}"
         git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
 
-    # Используя второй раз один и тот же код, неплохо его было бы вынести в отдельный action
-    # Для упрощения, оставим дубляж как есть
+    # Используя второй раз один и тот же код, правильнее было бы вынести его в отдельный action
+    # Для упрощения примера, оставим дубляж
     - name: Get project version from .csproj
       shell: bash
       run: |
@@ -381,10 +384,10 @@ release:
 
 ```yaml
 # 1.1. Создание пайплайна с триггером запуска
-# Pipeline name
+# Имя пайплайна
 name: Create release and publish NuGet
 
-# Trigger when a commit is created on the remote master branch
+# Условия при котором пайплайн будет запускаться. В данном случае это комит в удаленную ветку master
 on:
   push:
     branches:
@@ -412,6 +415,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       # Возвращает результат проверки в переменной is_valid
+	  # Из других джоб на результат можно получить используя выражение needs.check_version.outputs.is_valid
       is_valid: ${{ steps.compare_versions.outputs.is_valid }}
     steps:
       - name: Checkout repository
@@ -463,14 +467,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Наконфигурируем в настроцках Git текущей джобы имя и адрес почты автора для тега
+	  # Изменим в конфигурации Git текущей джобы имя и адрес почты автора для тега
       - name: Set up Git
         run: |
           git config --global user.name "${{ secrets.GIT_USER_NAME }}"
           git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
 
-      # Используя второй раз один и тот же код, неплохо его было бы вынести в отдельный action
-      # Для упрощения, оставим дубляж как есть
+	  # Используя второй раз один и тот же код, правильнее было бы вынести его в отдельный action
+	  # Для упрощения примера, оставим дубляж
       - name: Get project version from .csproj
         shell: bash
         run: |
@@ -513,11 +517,11 @@ jobs:
               --latest
 
   1.2. Добавления джобы сборки пакета
-  # Уникальный референс индентификатор джобы
+  # Уникальный индентификатор джобы, который может использоваться при необходимости как ссылка
   create_nuget:
     # Юзер френдли имя джобы, которое будет отображаться на UI
     name: Create NuGet
-    # Среда исполения. Каждая джоба выполняется изолировано в своей среде
+    # Среда исполения. Каждая джоба выполняется изолировано в своем окружении
     runs-on: ubuntu-24.04
     # Save path to the NuGet directory in the environment variable
     needs: tag_and_push
