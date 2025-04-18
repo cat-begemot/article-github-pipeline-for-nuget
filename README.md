@@ -394,7 +394,7 @@ name: Create release and publish NuGet
 on:
   push:
     branches:
-      - "test"
+      - "master"
 
 jobs:
   # 2. Добавление проверки прохождения тестов
