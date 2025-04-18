@@ -339,6 +339,9 @@ tag_and_push:
 release:
   name: Create release
   runs-on: ubuntu-24.04
+  env:
+    # Временный токен для аутентфиикации воркфлоу для создания релиза
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -499,6 +502,9 @@ jobs:
     runs-on: ubuntu-24.04
     needs: tag_and_push
     if: success()
+    env:
+      # Временный токен для аутентфиикации воркфлоу для создания релиза
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
