@@ -246,7 +246,7 @@ check_version:
   runs-on: ubuntu-24.04
   outputs:
     # Джоба возвращает результат проверки в переменной is_valid
-	# Из других джоб на результат можно получить используя выражение needs.check_version.outputs.is_valid
+    # Из других джоб на результат можно получить используя выражение needs.check_version.outputs.is_valid
     is_valid: ${{ steps.compare_versions.outputs.is_valid }}
   steps:
     - name: Checkout repository
@@ -415,7 +415,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       # Возвращает результат проверки в переменной is_valid
-	  # Из других джоб на результат можно получить используя выражение needs.check_version.outputs.is_valid
+      # Из других джоб на результат можно получить используя выражение needs.check_version.outputs.is_valid
       is_valid: ${{ steps.compare_versions.outputs.is_valid }}
     steps:
       - name: Checkout repository
@@ -467,14 +467,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-	  # Изменим в конфигурации Git текущей джобы имя и адрес почты автора для тега
+      # Изменим в конфигурации Git текущей джобы имя и адрес почты автора для тега
       - name: Set up Git
         run: |
           git config --global user.name "${{ secrets.GIT_USER_NAME }}"
           git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
 
-	  # Используя второй раз один и тот же код, правильнее было бы вынести его в отдельный action
-	  # Для упрощения примера, оставим дубляж
+      # Используя второй раз один и тот же код, правильнее было бы вынести его в отдельный action
+      # Для упрощения примера, оставим дубляж
       - name: Get project version from .csproj
         shell: bash
         run: |
