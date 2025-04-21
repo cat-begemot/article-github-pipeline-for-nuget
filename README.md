@@ -26,7 +26,7 @@ In this article, I’ll walk through a practical example of how to configure [CI
 
 Let’s assume we’re developing a library using the `C#/.NET` stack and plan to make it publicly available as a `NuGet` package. At this stage, we have a .NET solution in a local Git repository. For remote version control, we’re using the `GitHub` service.
 
-To understand what we’ll be automating later, let’s walk through the manual NuGet package deployment process. We can divide the work into two parts: the initial environment and project configuration, and the repetitive manual steps required for each NuGet publication.
+To understand what we’ll be automating later, let’s walk through the manual NuGet package deployment process.
 
 ## Manual Steps Required for Publishing
 
@@ -105,7 +105,7 @@ The documentation for writing workflows is available [here](https://docs.github.
 Let’s add a `./github/workflows/release-and-publish.yml` file to the project repository, specifying the name of the pipeline and the [event that triggers it](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows). In our case, it will be a commit to the master branch of the remote repository.
 
 ```yaml
-# 1.1. Creating a Pipeline with a Trigger
+# 1.2. Creating a Pipeline with a Trigger
 # Pipeline name
 name: Create release and publish NuGet
 
@@ -126,7 +126,7 @@ To create a minimally functional and useful pipeline, we'll add a job to build t
 From this point on, I'll only show the delta of the changes to the pipeline. The final version can be found [at the end of the article](#7-final-pipeline).
 
 ```yaml
-# 1.2. Adding the Package Build Job
+# 1.3. Adding the Package Build Job
 # Unique job identifier that can be used as a reference
 create_nuget:
   # User-friendly job name for the UI purposes
@@ -165,7 +165,7 @@ As a result, we’ll have an uploaded artifact stored with the name `UsefulPacka
 ### 1.4. Adding the Package Publishing Job
 
 ```yaml
-# 1.3. Adding the Package Publishing Job
+# 1.4. Adding the Package Publishing Job
 deploy:
   name: Deploy NuGet
   runs-on: ubuntu-24.04
@@ -382,12 +382,12 @@ With correctly configured dependencies and execution order, the workflow will lo
 
 <img width="1200" src="./assets/Pic-3.png"/>
 
-You can see how I achieved this by checking the final YAML file in the next section.
+You can see how I achieved this by checking the [final YAML file](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/release-and-publish.yml) in the next section.
 
 ## 7. Final Pipeline
 
 ```yaml
-# 1.1. Creating a Pipeline with a Trigger
+# 1.2. Creating a Pipeline with a Trigger
 # Pipeline name
 name: Create release and publish NuGet
 
@@ -523,7 +523,7 @@ jobs:
               --verify-tag \
               --latest
 
-  # 1.2. Adding the Package Build Job
+  # 1.3. Adding the Package Build Job
   # Unique job identifier that can be used as a reference
   create_nuget:
     # User-friendly job name for the UI purposes
@@ -558,7 +558,7 @@ jobs:
           retention-days: 7
           path: ${{ env.NuGetDirectory }}/*.nupkg
 
-  # 1.3. Adding the Package Publishing Job
+  # 1.4. Adding the Package Publishing Job
   deploy:
     name: Deploy NuGet
     runs-on: ubuntu-24.04
@@ -602,4 +602,5 @@ Also, don’t forget to update the release notes section on GitHub after the pip
 
 ## References
 
-1. [Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/RU.md)
+1. [Publication in the medium.com](https://medium.com/@onebegemot/automating-nuget-package-verification-and-publishing-using-github-actions-d6402d924474)
+2. [Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/RU.md)

@@ -1,4 +1,4 @@
-# 1.1. Creating a Pipeline with a Trigger
+# 1.2. Creating a Pipeline with a Trigger
 # Pipeline name
 name: Create release and publish NuGet
 
@@ -134,7 +134,7 @@ jobs:
               --verify-tag \
               --latest
 
-  # 1.2. Adding the Package Build Job
+  # 1.3. Adding the Package Build Job
   # Unique job identifier that can be used as a reference
   create_nuget:
     # User-friendly job name for the UI purposes
@@ -169,7 +169,7 @@ jobs:
           retention-days: 7
           path: ${{ env.NuGetDirectory }}/*.nupkg
 
-  # 1.3. Adding the Package Publishing Job
+  # 1.4. Adding the Package Publishing Job
   deploy:
     name: Deploy NuGet
     runs-on: ubuntu-24.04
