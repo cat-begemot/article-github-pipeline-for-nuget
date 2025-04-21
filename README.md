@@ -123,7 +123,7 @@ To create a minimally functional and useful pipeline, we'll add a job to build t
 
 ### 1.3. Adding the Package Build Job
 
-From this point on, I'll only show the delta of the changes to the pipeline. The final version can be found [at the end of the article]().
+From this point on, I'll only show the delta of the changes to the pipeline. The final version can be found [at the end of the article](#7-final-pipeline).
 
 ```yaml
 # 1.2. Adding the Package Build Job
