@@ -20,6 +20,7 @@ In this article, I’ll walk through a practical example of how to configure [CI
 * [6. Managing Job Dependencies and Execution Order](#6-managing-job-dependencies-and-execution-order)
 * [7. Final Pipeline](#7-final-pipeline)
 * [Conclusion](#conclusion)
+* [References](#references)
 
 ## Environment, Process, and Goals
 
@@ -602,4 +603,4 @@ Don’t forget to update the release notes section on GitHub after the pipeline 
 
 ## References
 
-1. [Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions]()
+1. [Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/RU.md)
