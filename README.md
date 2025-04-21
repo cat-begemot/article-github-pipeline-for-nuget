@@ -29,7 +29,7 @@ Let’s assume we’re developing a library using the `C#/.NET` stack and plan t
 To understand what we’ll be automating later, let’s walk through the manual NuGet package deployment process. We can divide the work into two parts: the initial environment/project configuration, and the repetitive manual steps required for each NuGet publication.
 
 ### Initial Configuration
-We’ll use [nuget.org[(https://www.nuget.org) as the NuGet package host. If you don’t already have an account, [create one](https://learn.microsoft.com/en-us/nuget/nuget-org/individual-accounts#add-a-new-individual-account)
+We’ll use [nuget.org](https://www.nuget.org) as the NuGet package host. If you don’t already have an account, [create one](https://learn.microsoft.com/en-us/nuget/nuget-org/individual-accounts#add-a-new-individual-account)
 
 [Generate an API key](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key) in your NuGet account. This will be required to publish your package.
 
