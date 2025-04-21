@@ -3,7 +3,23 @@
 In this article, I’ll walk through a practical example of how to configure [CI/CD](https://github.com/resources/articles/devops/ci-cd) using [GitHub Actions](https://github.com/features/actions) to validate and publish a NuGet package — starting with a minimal viable pipeline and gradually expanding it to fully automate the required processes.
 
 ## Table of Contents
-...
+
+* [Environment, Process, and Goals](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#environment-process-and-goals)
+	* [Initial Configuration](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#initial-configuration)
+	* [Manual Steps Required for Publishing](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#manual-steps-required-for-publishing)
+* [A Brief Overview of GitHub Actions Automation and YAML File Structure](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#a-brief-overview-of-github-actions-automation-and-yaml-file-structure)
+* [MVP Pipeline](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#1-mvp-pipeline)
+	* [1.1. Creating a Pipeline with a Trigger](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#11-creating-a-pipeline-with-a-trigger)
+	* [1.2. Adding the Package Build Job](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#12-adding-the-package-build-job)
+	* [1.3. Adding the Package Publishing Job](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#13-adding-the-package-publishing-job)
+	* [1.4 Result](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#14-result)
+* [2. Adding a Test Verification Step](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#2-adding-a-test-verification-step)
+* [3. Adding a Check for the Current Project Version](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#3-adding-a-check-for-the-current-project-version)
+* [4. Adding a Tag with the Version to the Current Release Commit](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#4-adding-a-tag-with-the-version-to-the-current-release-commit)
+* [5. Creating a Release in the GitHub Repository](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#5-creating-a-release-in-the-github-repository)
+* [6. Managing Job Dependencies and Execution Order]()
+* []()
+* []()
 
 ## Environment, Process, and Goals
 
@@ -120,9 +136,9 @@ create_nuget:
   # Save path to the NuGet directory in the environment variable
   env:
     NuGetDirectory: ${{ github.workspace}}/nuget
-  # Перечень последовательно запускаемых команд
+  # List of commands to be run sequentially
   steps:
-    # Чекаут на комит ветки для доступа к исходному коду
+    # Checkout on a branch commit to access the source code
     - name: Checkout repository
       uses: actions/checkout@v4
 
@@ -345,7 +361,7 @@ release:
             --latest
 ```
 
-6. Managing Job Dependencies and Execution Order
+## 6. Managing Job Dependencies and Execution Order
 
 By automating all the requirements, we end up with a sequence of actions:
 
@@ -368,7 +384,7 @@ With correctly configured dependencies and execution order, the workflow will lo
 
 You can see how I achieved this by checking the final YAML file mentioned earlier.
 
-7. Final Pipeline
+## 7. Final Pipeline
 
 ```yaml
 # 1.1. Creating a Pipeline with a Trigger
