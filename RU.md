@@ -1,5 +1,3 @@
-[EN: Automate NuGet package verification and deployment with GitHub Actions](EN.md)
-
 # Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions
 
 В этой статье на практическом примере я хочу показать как настроить [CI/CD](https://github.com/resources/articles/devops/ci-cd) используя [GitHub actions](https://github.com/features/actions) для валидации и развертывания NuGet пакета, начиная с минимально полезного пайплайна и постепенного расширения функционала до полной автоматизации запланированных требований.
@@ -21,7 +19,7 @@
 * [6. Управление зависимостями между джобами и очередностью выполнения](#6-%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B7%D0%B0%D0%B2%D0%B8%D1%81%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D1%8F%D0%BC%D0%B8-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83-%D0%B4%D0%B6%D0%BE%D0%B1%D0%B0%D0%BC%D0%B8-%D0%B8-%D0%BE%D1%87%D0%B5%D1%80%D0%B5%D0%B4%D0%BD%D0%BE%D1%81%D1%82%D1%8C%D1%8E-%D0%B2%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F)
 * [7. Финальный пайплайн](#7-%D1%84%D0%B8%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9-%D0%BF%D0%B0%D0%B9%D0%BF%D0%BB%D0%B0%D0%B9%D0%BD)
 * [Заключение](#%D0%B7%D0%B0%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5)
-* [Ссылки]()
+* [Ссылки](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/RU.md#%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B8)
 
 ## Окружение, процессы и постановка задачи
 
