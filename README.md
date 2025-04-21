@@ -1,6 +1,6 @@
 # Automating NuGet Package Verification and Publishing Using GitHub Actions
 
-In this article, I’ll walk through a practical example of how to configure [CI/CD](https://github.com/resources/articles/devops/ci-cd) using [GitHub Actions](https://github.com/features/actions) to validate and publish a NuGet package — starting with a minimal viable pipeline and gradually expanding it to fully automate the required processes.
+In this article, I’ll walk through a practical example of how to configure [CI/CD](https://github.com/resources/articles/devops/ci-cd) using [GitHub Actions](https://github.com/features/actions) to validate and publish a NuGet package — starting with a minimal useful pipeline and gradually expanding it to fully automated the required processes.
 
 ## Table of Contents
 
@@ -8,7 +8,7 @@ In this article, I’ll walk through a practical example of how to configure [CI
 	* [Initial Configuration](#initial-configuration)
 	* [Manual Steps Required for Publishing](#manual-steps-required-for-publishing)
 * [A Brief Overview of GitHub Actions Automation and YAML File Structure](#a-brief-overview-of-github-actions-automation-and-yaml-file-structure)
-* [MVP Pipeline](#1-mvp-pipeline)
+* [1. MVP Pipeline](#1-mvp-pipeline)
 	* [1.1. Creating a Pipeline with a Trigger](#11-creating-a-pipeline-with-a-trigger)
 	* [1.2. Adding the Package Build Job](#12-adding-the-package-build-job)
 	* [1.3. Adding the Package Publishing Job](#13-adding-the-package-publishing-job)
@@ -26,14 +26,13 @@ In this article, I’ll walk through a practical example of how to configure [CI
 
 Let’s assume we’re developing a library using the `C#/.NET` stack and plan to make it publicly available as a `NuGet` package. At this stage, we have a .NET solution in a local Git repository. For remote version control, we’re using the `GitHub` service.
 
-To understand what we’ll be automating later, let’s walk through the manual NuGet package deployment process. We can divide the work into two parts: the initial environment/project configuration, and the repetitive manual steps required for each NuGet publication.
+To understand what we’ll be automating later, let’s walk through the manual NuGet package deployment process. We can divide the work into two parts: the initial environment and project configuration, and the repetitive manual steps required for each NuGet publication.
 
 ### Initial Configuration
-We’ll use [nuget.org](https://www.nuget.org) as the NuGet package host. If you don’t already have an account, [create one](https://learn.microsoft.com/en-us/nuget/nuget-org/individual-accounts#add-a-new-individual-account)
 
-[Generate an API key](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key) in your NuGet account. This will be required to publish your package.
-
-Add the necessary [metadata](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices) to the `<PropertyGroup>` and `<ItemGroup>` sections to the `*.csproj` project configuration file for publication.
+1. We’ll use [nuget.org](https://www.nuget.org) as the NuGet package host. If you don’t already have an account, [create one](https://learn.microsoft.com/en-us/nuget/nuget-org/individual-accounts#add-a-new-individual-account).
+2. [Generate an API key](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key) in your NuGet account. This will be required to publish your package.
+3. Add the necessary [metadata](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices) to the `<PropertyGroup>` and `<ItemGroup>` sections to the `*.csproj` project configuration file for publication.
 
 ```xml
 <PropertyGroup>
