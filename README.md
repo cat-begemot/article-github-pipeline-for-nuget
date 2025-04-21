@@ -5,14 +5,14 @@ In this article, I’ll walk through a practical example of how to configure [CI
 ## Table of Contents
 
 * [Environment, Process, and Goals](#environment-process-and-goals)
-	* [Initial Configuration](#initial-configuration)
-	* [Manual Steps Required for Publishing](#manual-steps-required-for-publishing)
+* [Manual Steps Required for Publishing](#manual-steps-required-for-publishing)
 * [A Brief Overview of GitHub Actions Automation and YAML File Structure](#a-brief-overview-of-github-actions-automation-and-yaml-file-structure)
 * [1. MVP Pipeline](#1-mvp-pipeline)
-	* [1.1. Creating a Pipeline with a Trigger](#11-creating-a-pipeline-with-a-trigger)
-	* [1.2. Adding the Package Build Job](#12-adding-the-package-build-job)
-	* [1.3. Adding the Package Publishing Job](#13-adding-the-package-publishing-job)
-	* [1.4 Result](#14-result)
+	* [1.1. Initial Configuration](#11-initial-configuration)
+	* [1.2. Creating a Pipeline with a Trigger](#12-creating-a-pipeline-with-a-trigger)
+	* [1.3. Adding the Package Build Job](#13-adding-the-package-build-job)
+	* [1.4. Adding the Package Publishing Job](#14-adding-the-package-publishing-job)
+	* [1.5. Result](#15-result)
 * [2. Adding a Test Verification Step](#2-adding-a-test-verification-step)
 * [3. Adding a Check for the Current Project Version](#3-adding-a-check-for-the-current-project-version)
 * [4. Adding a Tag with the Version to the Current Release Commit](#4-adding-a-tag-with-the-version-to-the-current-release-commit)
@@ -28,7 +28,38 @@ Let’s assume we’re developing a library using the `C#/.NET` stack and plan t
 
 To understand what we’ll be automating later, let’s walk through the manual NuGet package deployment process. We can divide the work into two parts: the initial environment and project configuration, and the repetitive manual steps required for each NuGet publication.
 
-### Initial Configuration
+## Manual Steps Required for Publishing
+
+Whenever a new version is ready for release, the following steps need to be executed each time to deliver the new NuGet version to users:
+
+1. Run unit tests
+2. Increment the [version number](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#package-version) in the project configuration file: `<Version>1.0.1</Version>`
+3. Merge commits into the main branch and add a `Git` tag with the release version pointing to the commit
+4. Build the release version of the library: `dotnet pack --configuration Release`
+5. Publish the release version to `nuget.org` for public access: `dotnet nuget push {NUGET_NAME_WITH_VERSION} --api-key {API_KEY} --source https://api.nuget.org/v3/index.json`
+6. Create a [release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) in the `GitHub` repository with a description of the changes included in the current version
+
+We’ll take these steps as the requirements to be automated.
+
+## A Brief Overview of GitHub Actions Automation and YAML File Structure
+
+[GitHub Actions](https://github.com/features/actions) is a [CI/CD](https://github.com/resources/articles/devops/ci-cd) tool used to automate workflows for building and publishing software. Workflows can include things like managing branches during pull requests, code reviews and merges, as well as building, testing, and publishing results.
+
+Many of the publishing steps are repetitive and routine, and can be automated — optionally with added flexibility via parameters or conditions. In other words, the process can be automated by writing a script in a YAML file, which `GitHub` interprets as a set of automation instructions.
+
+A YAML file includes the following elements:
+
+1. Triggers for launching automation (e.g., a commit to a specific branch or a pull request)
+2. Environment in which the commands will be run (e.g., OS type and version, or container)
+3. Command definitions. These are defined as `steps` within a single `job`. A `pipeline` can contain `multiple jobs`.
+
+You can read more about how GitHub Actions works on the [official documentation] site(https://docs.github.com/en/actions/about-github-actions/understanding-github-actions).
+
+The documentation for writing workflows is available here(https://docs.github.com/en/actions/writing-workflows).
+
+## 1. MVP Pipeline
+
+### 1.1. Initial Configuration
 
 1. We’ll use [nuget.org](https://www.nuget.org) as the NuGet package host. If you don’t already have an account, [create one](https://learn.microsoft.com/en-us/nuget/nuget-org/individual-accounts#add-a-new-individual-account).
 2. [Generate an API key](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key) in your NuGet account. This will be required to publish your package.
@@ -69,38 +100,7 @@ To understand what we’ll be automating later, let’s walk through the manual 
 </ItemGroup>
 ```
 
-### Manual Steps Required for Publishing
-
-Whenever a new version is ready for release, the following steps need to be executed each time to deliver the new NuGet version to users:
-
-1. Run unit tests
-2. Increment the [version number](https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#package-version) in the project configuration file: `<Version>1.0.1</Version>`
-3. Merge commits into the main branch and add a `Git` tag with the release version pointing to the commit
-4. Build the release version of the library: `dotnet pack --configuration Release`
-5. Publish the release version to `nuget.org` for public access: `dotnet nuget push {NUGET_NAME_WITH_VERSION} --api-key {API_KEY} --source https://api.nuget.org/v3/index.json`
-6. Create a [release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) in the `GitHub` repository with a description of the changes included in the current version
-
-We’ll take these steps as the requirements to be automated.
-
-## A Brief Overview of GitHub Actions Automation and YAML File Structure
-
-[GitHub Actions](https://github.com/features/actions) is a [CI/CD](https://github.com/resources/articles/devops/ci-cd) tool used to automate workflows for building and publishing software. Workflows can include things like managing branches during pull requests, code reviews and merges, as well as building, testing, and publishing results.
-
-Many of the publishing steps are repetitive and routine, and can be automated — optionally with added flexibility via parameters or conditions. In other words, the process can be automated by writing a script in a YAML file, which `GitHub` interprets as a set of automation instructions.
-
-A YAML file includes the following elements:
-
-1. Triggers for launching automation (e.g., a commit to a specific branch or a pull request)
-2. Environment in which the commands will be run (e.g., OS type and version, or container)
-3. Command definitions. These are defined as `steps` within a single `job`. A `pipeline` can contain `multiple jobs`.
-
-You can read more about how GitHub Actions works on the [official documentation] site(https://docs.github.com/en/actions/about-github-actions/understanding-github-actions).
-
-The documentation for writing workflows is available here(https://docs.github.com/en/actions/writing-workflows).
-
-## 1. MVP Pipeline
-
-### 1.1. Creating a Pipeline with a Trigger
+### 1.2. Creating a Pipeline with a Trigger
 
 Let’s add a `./github/workflows/release-and-publish.yml` file to the project repository, specifying the name of the pipeline and the [event that triggers it](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows). In our case, it will be a commit to the master branch of the remote repository.
 
@@ -121,7 +121,7 @@ jobs:
 
 To create a minimally functional and useful pipeline, we'll add a job to build the NuGet package and a job to publish the artifact to nuget.org.
 
-### 1.2. Adding the Package Build Job
+### 1.3. Adding the Package Build Job
 
 From this point on, I'll only show the delta of the changes to the pipeline. The final version can be found [at the end of the article]().
 
@@ -162,7 +162,7 @@ create_nuget:
 
 As a result, we’ll have an uploaded artifact stored with the name UsefulPackage.1.0.1.nupkg, where the version number comes from the .csproj file of the project. Don’t forget to increment the version number with every release, as you won’t be able to publish the same version twice on nuget.org.
 
-### 1.3. Adding the Package Publishing Job
+### 1.4. Adding the Package Publishing Job
 
 ```yaml
 # 1.3. Adding the Package Publishing Job
@@ -201,7 +201,7 @@ In the publishing step, we iterate through the contents of the uploaded artifact
 
 To avoid exposing your NuGet host access key, [store it securely in the repository settings](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions) and reference it in the pipeline like this: `"${{ secrets.NUGET_APIKEY }}"`.
 
-### 1.4 Result
+### 1.5. Result
 
 In the end, we have a minimally working pipeline:
 
