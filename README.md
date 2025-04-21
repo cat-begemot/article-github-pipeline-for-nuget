@@ -53,9 +53,9 @@ A YAML file includes the following elements:
 2. Environment in which the commands will be run (e.g., OS type and version, or container)
 3. Command definitions. These are defined as `steps` within a single `job`. A `pipeline` can contain `multiple jobs`.
 
-You can read more about how GitHub Actions works on the [official documentation] site(https://docs.github.com/en/actions/about-github-actions/understanding-github-actions).
+You can read more about how GitHub Actions works on the [official documentation site](https://docs.github.com/en/actions/about-github-actions/understanding-github-actions).
 
-The documentation for writing workflows is available here(https://docs.github.com/en/actions/writing-workflows).
+The documentation for writing workflows is available [here](https://docs.github.com/en/actions/writing-workflows).
 
 ## 1. MVP Pipeline
 
