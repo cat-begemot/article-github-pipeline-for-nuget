@@ -160,7 +160,7 @@ create_nuget:
         path: ${{ env.NuGetDirectory }}/*.nupkg
 ```
 
-As a result, we’ll have an uploaded artifact stored with the name UsefulPackage.1.0.1.nupkg, where the version number comes from the .csproj file of the project. Don’t forget to increment the version number with every release, as you won’t be able to publish the same version twice on nuget.org.
+As a result, we’ll have an uploaded artifact stored with the name `UsefulPackage.1.0.1.nupkg`, where the version number comes from the .csproj file of the project. Don’t forget to increment the version number with every release, as you won’t be able to publish the same version twice on nuget.org.
 
 ### 1.4. Adding the Package Publishing Job
 
@@ -203,7 +203,7 @@ To avoid exposing your NuGet host access key, [store it securely in the reposito
 
 ### 1.5. Result
 
-In the end, we have a minimally working pipeline:
+In the end, we have a minimally useful pipeline:
 
 <img width="600" src="./assets/Pic-1.png"/>
 
@@ -374,7 +374,7 @@ To manage dependencies and conditions, we use `needs` and `if` tags in jobs. The
 ```yaml
 # This job waits for the completion of the specified jobs
 needs: [run_test, check_version]
-# Create a tag only if unit tests pass and version check returns valid
+# Create a tag only if the previous job completed successfully and version checking is passed
 if: ${{ success() && needs.check_version.outputs.is_valid == 'true' }}
 ```
 
@@ -382,7 +382,7 @@ With correctly configured dependencies and execution order, the workflow will lo
 
 <img width="1200" src="./assets/Pic-3.png"/>
 
-You can see how I achieved this by checking the final YAML file mentioned earlier.
+You can see how I achieved this by checking the final YAML file in the next section.
 
 ## 7. Final Pipeline
 
@@ -596,7 +596,7 @@ In this article, I shared my experience creating a GitHub Actions pipeline to au
 
 Merging new features with the version set in the master branch triggers an automated workflow for validating and publishing the NuGet package to nuget.org, making it available shortly after via NuGet Package Manager or any other NuGet client.
 
-Don’t forget to update the release notes section on GitHub after the pipeline completes.
+Also, don’t forget to update the release notes section on GitHub after the pipeline completes.
 
 <img width="350" src="./assets/Pic-4.png"/> <img width="600" src="./assets/Pic-5.png"/>
 
