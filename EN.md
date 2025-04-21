@@ -4,22 +4,22 @@ In this article, I’ll walk through a practical example of how to configure [CI
 
 ## Table of Contents
 
-* [Environment, Process, and Goals](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#environment-process-and-goals)
-	* [Initial Configuration](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#initial-configuration)
-	* [Manual Steps Required for Publishing](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#manual-steps-required-for-publishing)
-* [A Brief Overview of GitHub Actions Automation and YAML File Structure](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#a-brief-overview-of-github-actions-automation-and-yaml-file-structure)
-* [MVP Pipeline](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#1-mvp-pipeline)
-	* [1.1. Creating a Pipeline with a Trigger](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#11-creating-a-pipeline-with-a-trigger)
-	* [1.2. Adding the Package Build Job](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#12-adding-the-package-build-job)
-	* [1.3. Adding the Package Publishing Job](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#13-adding-the-package-publishing-job)
-	* [1.4 Result](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#14-result)
-* [2. Adding a Test Verification Step](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#2-adding-a-test-verification-step)
-* [3. Adding a Check for the Current Project Version](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#3-adding-a-check-for-the-current-project-version)
-* [4. Adding a Tag with the Version to the Current Release Commit](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#4-adding-a-tag-with-the-version-to-the-current-release-commit)
-* [5. Creating a Release in the GitHub Repository](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/EN.md#5-creating-a-release-in-the-github-repository)
-* [6. Managing Job Dependencies and Execution Order]()
-* []()
-* []()
+* [Environment, Process, and Goals](#environment-process-and-goals)
+	* [Initial Configuration](#initial-configuration)
+	* [Manual Steps Required for Publishing](#manual-steps-required-for-publishing)
+* [A Brief Overview of GitHub Actions Automation and YAML File Structure](#a-brief-overview-of-github-actions-automation-and-yaml-file-structure)
+* [MVP Pipeline](#1-mvp-pipeline)
+	* [1.1. Creating a Pipeline with a Trigger](#11-creating-a-pipeline-with-a-trigger)
+	* [1.2. Adding the Package Build Job](#12-adding-the-package-build-job)
+	* [1.3. Adding the Package Publishing Job](#13-adding-the-package-publishing-job)
+	* [1.4 Result](#14-result)
+* [2. Adding a Test Verification Step](#2-adding-a-test-verification-step)
+* [3. Adding a Check for the Current Project Version](#3-adding-a-check-for-the-current-project-version)
+* [4. Adding a Tag with the Version to the Current Release Commit](#4-adding-a-tag-with-the-version-to-the-current-release-commit)
+* [5. Creating a Release in the GitHub Repository](#5-creating-a-release-in-the-github-repository)
+* [6. Managing Job Dependencies and Execution Order](#6-managing-job-dependencies-and-execution-order)
+* [7. Final Pipeline](#7-final-pipeline)
+* [Conclusion](#conclusion)
 
 ## Environment, Process, and Goals
 
