@@ -602,5 +602,5 @@ Also, don’t forget to update the release notes section on GitHub after the pip
 
 ## References
 
-1. [Publication in the medium.com](https://medium.com/@onebegemot/automating-nuget-package-verification-and-publishing-using-github-actions-d6402d924474)
+1. [Publication on the medium.com](https://medium.com/@onebegemot/automating-nuget-package-verification-and-publishing-using-github-actions-d6402d924474)
 2. [Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions](https://github.com/cat-begemot/article-pipeline-for-nuget/blob/main/RU.md)
