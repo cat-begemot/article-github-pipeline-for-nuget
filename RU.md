@@ -601,3 +601,4 @@ jobs:
 ## Ссылки
 
 1. [Automating NuGet Package Verification and Publishing Using GitHub Actions](README.md)
+2. [Публикация на medium.com](https://medium.com/@onebegemot/автоматизация-верификации-и-публикации-nuget-пакета-с-помощью-github-actions-bc3603b30575)
