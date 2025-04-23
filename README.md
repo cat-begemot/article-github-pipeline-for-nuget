@@ -382,7 +382,7 @@ With correctly configured dependencies and execution order, the workflow will lo
 
 <img width="1200" src="./assets/Pic-3.png"/>
 
-You can see how I achieved this by checking the [final YAML file](https://github.com/cat-begemot/github-article-pipeline-for-nuget/blob/main/release-and-publish.yml) in the next section.
+You can see how I achieved this by checking the [final YAML file](https://github.com/cat-begemot/article-github-pipeline-for-nuget/blob/main/release-and-publish.yml) in the next section.
 
 ## 7. Final Pipeline
 
@@ -603,4 +603,4 @@ Also, don’t forget to update the release notes section on GitHub after the pip
 ## References
 
 1. [Publication on the medium.com](https://medium.com/@onebegemot/automating-nuget-package-verification-and-publishing-using-github-actions-d6402d924474)
-2. [Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions](https://github.com/cat-begemot/github-article-pipeline-for-nuget/blob/main/RU.md)
+2. [Автоматизация верификации и публикации NuGet пакета с помощью GitHub actions](https://github.com/cat-begemot/article-github-pipeline-for-nuget/blob/main/RU.md)
