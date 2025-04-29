@@ -1,6 +1,6 @@
 # Automating NuGet Package Verification and Publishing Using GitHub Actions
 
-In this article, I’ll walk through a practical example of how to configure [CI/CD](https://github.com/resources/articles/devops/ci-cd) using [GitHub Actions](https://github.com/features/actions) to validate and publish a NuGet package — starting with a minimal useful pipeline and gradually expanding it to fully automated the required processes.
+In this article, I’ll walk through a practical example of how to configure [CI/CD](https://github.com/resources/articles/devops/ci-cd) using [GitHub Actions](https://github.com/features/actions) to validate and publish a NuGet package - starting with a minimal useful pipeline and gradually expanding it to fully automated the required processes.
 
 ## Table of Contents
 
@@ -45,7 +45,7 @@ We’ll take these steps as the requirements to be automated.
 
 [GitHub Actions](https://github.com/features/actions) is a [CI/CD](https://github.com/resources/articles/devops/ci-cd) tool used to automate workflows for building and publishing software. Workflows can include things like managing branches during pull requests, code reviews and merges, as well as building, testing, and publishing results.
 
-Many of the publishing steps are repetitive and routine, and can be automated — optionally with added flexibility via parameters or conditions. In other words, the process can be automated by writing a script in a YAML file, which `GitHub` interprets as a set of automation instructions.
+Many of the publishing steps are repetitive and routine, and can be automated - optionally with added flexibility via parameters or conditions. In other words, the process can be automated by writing a script in a YAML file, which `GitHub` interprets as a set of automation instructions.
 
 A YAML file includes the following elements:
 
